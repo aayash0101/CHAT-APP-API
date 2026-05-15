@@ -27,10 +27,9 @@ export const createRoom = async (req, res) => {
 
 export const getRoomMessages = async (req, res) => {
   const messages = await Message.find({ room: req.params.roomId })
-    .populate("sender", "username")
+    .populate("sender", "username avatar displayName")  
     .sort({ createdAt: 1 })
     .limit(50);
-
   res.json(messages);
 };
 
