@@ -54,3 +54,25 @@ export const joinRoom = async (req, res) => {
 
   res.json({ message: "Joined room successfully", room });
 };
+
+const handleLeaveRoom = async () => {
+  try {
+    await api.delete(`/rooms/${activeRoom._id}/leave`);
+
+    setRooms((prev) =>
+      prev.map((r) =>
+        r._id === activeRoom._id
+          ? { ...r, members: r.members.filter((m) => m !== user._id && m._id !== user._id) }
+          : r
+      )
+    );
+
+    socket?.emit("room:leave", activeRoom._id);
+    setActiveRoom(null);
+    setMessages([]);
+    setTypingUsers([]);
+    setIsMember(false);
+  } catch (err) {
+    console.error("Failed to leave room:", err.response?.data?.message);
+  }
+};
