@@ -35,8 +35,12 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     avatar: {
-      type: String,  
+      type: String,
       default: "",
+    },
+    avatarPublicId: {
+      type: String,
+      default: null
     },
     isOnline: {
       type: Boolean,

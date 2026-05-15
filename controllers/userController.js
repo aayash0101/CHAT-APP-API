@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import fs from "fs";
 import path from "path";
+import { v2 as cloudinary } from "cloudinary";
 
 
 export const getUserProfile = async (req, res) => {
@@ -50,15 +51,12 @@ export const uploadAvatar = async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  
-  if (user.avatar) {
-    const oldPath = path.join(process.cwd(), user.avatar);
-    if (fs.existsSync(oldPath)) {
-      fs.unlinkSync(oldPath); 
-    }
+  if (user.avatarPublicId) {
+    await cloudinary.uploader.destroy(user.avatarPublicId);
   }
 
-  user.avatar = `/uploads/${req.file.filename}`;
+  user.avatar = req.file.path;
+  user.avatarPublicId = req.file.filename;
   await user.save();
 
   res.json({
