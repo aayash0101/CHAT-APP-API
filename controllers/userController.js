@@ -42,25 +42,27 @@ export const updateProfile = async (req, res) => {
 
 
 export const uploadAvatar = async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded" });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.avatarPublicId) {
+      await cloudinary.uploader.destroy(user.avatarPublicId);
+    }
+
+    user.avatar = req.file.path;
+    user.avatarPublicId = req.file.filename;
+    await user.save();
+
+    res.json({ avatar: user.avatar, message: "Avatar updated successfully" });
+  } catch (err) {
+    console.error("uploadAvatar error:", err); // <-- shows in Render logs
+    res.status(500).json({ message: err.message });
   }
-
-  const user = await User.findById(req.user._id);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  if (user.avatarPublicId) {
-    await cloudinary.uploader.destroy(user.avatarPublicId);
-  }
-
-  user.avatar = req.file.path;
-  user.avatarPublicId = req.file.filename;
-  await user.save();
-
-  res.json({
-    avatar: user.avatar,
-    message: "Avatar updated successfully",
-  });
 };
