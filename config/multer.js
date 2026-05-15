@@ -2,7 +2,6 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-// Create uploads folder if it doesn't exist
 const uploadDir = "uploads";
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
@@ -10,10 +9,9 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // save files to /uploads folder
+    cb(null, "uploads/"); 
   },
   filename: (req, file, cb) => {
-    // e.g. avatar-userId-1234567890.jpg — unique and tied to the user
     const ext = path.extname(file.originalname);
     cb(null, `avatar-${req.user._id}-${Date.now()}${ext}`);
   },
@@ -31,7 +29,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB max
+  limits: { fileSize: 2 * 1024 * 1024 }, 
 });
 
 export default upload;
