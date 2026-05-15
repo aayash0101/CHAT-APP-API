@@ -55,9 +55,6 @@ export const joinRoom = async (req, res) => {
   res.json({ message: "Joined room successfully", room });
 };
 
-// @desc    Leave a room
-// @route   DELETE /api/rooms/:roomId/leave
-// @access  Private
 export const leaveRoom = async (req, res) => {
   const room = await Room.findById(req.params.roomId);
 
