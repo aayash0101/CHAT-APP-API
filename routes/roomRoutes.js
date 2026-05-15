@@ -1,13 +1,14 @@
 import express from "express";
-import { getRooms, createRoom, getRoomMessages } from "../controllers/roomController.js";
+import { getRooms, createRoom, getRoomMessages, joinRoom } from "../controllers/roomController.js";
 import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.use(protect); 
+router.use(protect);
 
 router.get("/", getRooms);
 router.post("/", createRoom);
 router.get("/:roomId/messages", getRoomMessages);
+router.post("/:roomId/join", joinRoom); 
 
 export default router;

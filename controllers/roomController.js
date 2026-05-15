@@ -33,3 +33,24 @@ export const getRoomMessages = async (req, res) => {
 
   res.json(messages);
 };
+
+export const joinRoom = async (req, res) => {
+  const room = await Room.findById(req.params.roomId);
+
+  if (!room) {
+    return res.status(404).json({ message: "Room not found" });
+  }
+
+  const isMember = room.members.some(
+    (memberId) => memberId.toString() === req.user._id.toString()
+  );
+
+  if (isMember) {
+    return res.status(400).json({ message: "Already a member of this room" });
+  }
+
+  room.members.push(req.user._id);
+  await room.save();
+
+  res.json({ message: "Joined room successfully", room });
+};
