@@ -55,24 +55,29 @@ export const joinRoom = async (req, res) => {
   res.json({ message: "Joined room successfully", room });
 };
 
-const handleLeaveRoom = async () => {
-  try {
-    await api.delete(`/rooms/${activeRoom._id}/leave`);
+// @desc    Leave a room
+// @route   DELETE /api/rooms/:roomId/leave
+// @access  Private
+export const leaveRoom = async (req, res) => {
+  const room = await Room.findById(req.params.roomId);
 
-    setRooms((prev) =>
-      prev.map((r) =>
-        r._id === activeRoom._id
-          ? { ...r, members: r.members.filter((m) => m !== user._id && m._id !== user._id) }
-          : r
-      )
-    );
-
-    socket?.emit("room:leave", activeRoom._id);
-    setActiveRoom(null);
-    setMessages([]);
-    setTypingUsers([]);
-    setIsMember(false);
-  } catch (err) {
-    console.error("Failed to leave room:", err.response?.data?.message);
+  if (!room) {
+    return res.status(404).json({ message: "Room not found" });
   }
+
+  const isMember = room.members.some(
+    (memberId) => memberId.toString() === req.user._id.toString()
+  );
+
+  if (!isMember) {
+    return res.status(400).json({ message: "You are not a member of this room" });
+  }
+
+  // Pull user out of members array
+  room.members = room.members.filter(
+    (memberId) => memberId.toString() !== req.user._id.toString()
+  );
+  await room.save();
+
+  res.json({ message: "Left room successfully" });
 };
