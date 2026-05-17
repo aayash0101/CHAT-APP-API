@@ -8,6 +8,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import dmRoutes from "./routes/dmRoutes.js";
 import socketHandler from "./socket/socketHandler.js";
 
 connectDB();
@@ -16,11 +17,10 @@ const app = express();
 const allowedOrigin = process.env.CLIENT_URL?.trim();
 app.use(cors({ origin: allowedOrigin, credentials: true }));
 app.use(express.json());
-// Remove this line - no longer serving local uploads:
-// app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/dms", dmRoutes);
 app.get("/", (req, res) => res.json({ message: "Chat API is running " }));
 
 const httpServer = createServer(app);
