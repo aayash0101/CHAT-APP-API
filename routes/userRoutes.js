@@ -1,5 +1,5 @@
 import express from "express";
-import { getUserProfile, updateProfile, uploadAvatar } from "../controllers/userController.js";
+import { getUserProfile, updateProfile, uploadAvatar, searchUsers } from "../controllers/userController.js";
 import protect from "../middleware/authMiddleware.js";
 import upload from "../config/multer.js";
 
