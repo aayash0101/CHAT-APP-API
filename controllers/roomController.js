@@ -2,7 +2,8 @@ import Room from "../models/Room.js";
 import Message from "../models/Message.js";
 
 export const getRooms = async (req, res) => {
-  const rooms = await Room.find().populate("createdBy", "username");
+  const rooms = await Room.find({ isDM: { $ne: true } })
+    .populate("createdBy", "username");
   res.json(rooms);
 };
 
