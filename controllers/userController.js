@@ -50,3 +50,18 @@ export const uploadAvatar = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+
+
+export const searchUsers = async (req, res) => {
+  const { q } = req.query;
+  if (!q?.trim()) return res.json([]);
+
+  const users = await User.find({
+    username: { $regex: q, $options: "i" }, 
+    _id: { $ne: req.user._id },             
+  })
+    .select("username displayName avatar isOnline")
+    .limit(10);
+
+  res.json(users);
+};
