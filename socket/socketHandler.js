@@ -3,7 +3,6 @@ import User from "../models/User.js";
 import Message from "../models/Message.js";
 
 const socketHandler = (io) => {
-  // 🔒 Middleware: authenticate every socket connection via JWT
   io.use(async (socket, next) => {
     try {
       const token = socket.handshake.auth.token;
@@ -13,7 +12,7 @@ const socketHandler = (io) => {
       const user = await User.findById(decoded.id).select("-password");
       if (!user) return next(new Error("User not found"));
 
-      socket.user = user; // attach user to socket for later use
+      socket.user = user; 
       next();
     } catch {
       next(new Error("Authentication error"));

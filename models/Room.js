@@ -13,11 +13,22 @@ const roomSchema = new mongoose.Schema(
       default: "",
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId, 
+      type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    // ── DM fields ──
+    isDM: {
+      type: Boolean,
+      default: false,
+    },
+    participants: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
