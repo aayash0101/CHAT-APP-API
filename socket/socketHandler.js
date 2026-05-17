@@ -12,7 +12,7 @@ const socketHandler = (io) => {
       const user = await User.findById(decoded.id).select("-password");
       if (!user) return next(new Error("User not found"));
 
-      socket.user = user; 
+      socket.user = user;
       next();
     } catch {
       next(new Error("Authentication error"));
@@ -48,23 +48,29 @@ const socketHandler = (io) => {
     });
 
     // --- SEND MESSAGE ---
-    socket.on("message:send", async ({ roomId, content }) => {
-      if (!content?.trim()) return; // ignore empty messages
+    socket.on("message:send", async ({ roomId, content, fileUrl, fileType, fileName, fileSize }) => {
+      // Must have either content or a file
+      if (!content?.trim() && !fileUrl) return;
 
-      // Save to MongoDB
       const message = await Message.create({
         room: roomId,
         sender: socket.user._id,
-        content: content.trim(),
+        content: content?.trim() || "",
+        fileUrl: fileUrl || "",
+        fileType: fileType || "",
+        fileName: fileName || "",
+        fileSize: fileSize || 0,
       });
 
-      // Populate sender username before broadcasting
-      const populated = await message.populate("sender", "username");
+      const populated = await message.populate("sender", "username avatar displayName");
 
-      // Send to EVERYONE in the room (including sender)
       io.to(roomId).emit("message:receive", {
         _id: populated._id,
         content: populated.content,
+        fileUrl: populated.fileUrl,
+        fileType: populated.fileType,
+        fileName: populated.fileName,
+        fileSize: populated.fileSize,
         sender: populated.sender,
         createdAt: populated.createdAt,
         roomId,
