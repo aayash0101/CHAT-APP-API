@@ -14,12 +14,28 @@ const messageSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: true,
       trim: true,
       maxlength: 2000,
+      default: "",      
+    },
+    fileUrl: {
+      type: String,     
+      default: "",
+    },
+    fileType: {
+      type: String,     
+      default: "",
+    },
+    fileName: {
+      type: String,     
+      default: "",
+    },
+    fileSize: {
+      type: Number,     
+      default: 0,
     },
   },
-  { timestamps: true } // createdAt = the message timestamp you'll display in chat
+  { timestamps: true }
 );
 
 const Message = mongoose.model("Message", messageSchema);
