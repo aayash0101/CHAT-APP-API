@@ -9,6 +9,7 @@ import authRoutes from "./routes/authRoutes.js";
 import roomRoutes from "./routes/roomRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import dmRoutes from "./routes/dmRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js";
 import socketHandler from "./socket/socketHandler.js";
 
 connectDB();
@@ -21,6 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dms", dmRoutes);
+import searchRoutes from "./routes/searchRoutes.js";
 app.get("/", (req, res) => res.json({ message: "Chat API is running " }));
 
 const httpServer = createServer(app);
