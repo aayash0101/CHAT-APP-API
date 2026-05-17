@@ -22,7 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dms", dmRoutes);
-import searchRoutes from "./routes/searchRoutes.js";
+app.use("/api/search", searchRoutes);
 app.get("/", (req, res) => res.json({ message: "Chat API is running " }));
 
 const httpServer = createServer(app);
