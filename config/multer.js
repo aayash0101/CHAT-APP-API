@@ -8,7 +8,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
+
+export const avatarStorage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "avatars",
@@ -17,4 +18,24 @@ const storage = new CloudinaryStorage({
   },
 });
 
-export default multer({ storage });
+// File/image storage — all types, stored as-is
+export const fileStorage = new CloudinaryStorage({
+  cloudinary,
+  params: (req, file) => {
+    const isImage = file.mimetype.startsWith("image/");
+    return {
+      folder: "chat-files",
+      resource_type: isImage ? "image" : "raw", // "raw" for non-image files
+      allowed_formats: ["jpg", "jpeg", "png", "webp", "gif", "pdf", "doc", "docx", "txt", "zip"],
+      public_id: `${Date.now()}-${file.originalname.replace(/\s+/g, "_")}`,
+    };
+  },
+});
+
+export const uploadAvatar = multer({ storage: avatarStorage });
+export const uploadFile = multer({
+  storage: fileStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, 
+});
+
+export default uploadAvatar; 
