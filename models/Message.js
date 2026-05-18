@@ -16,24 +16,20 @@ const messageSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 2000,
-      default: "",      
-    },
-    fileUrl: {
-      type: String,     
       default: "",
     },
-    fileType: {
-      type: String,     
-      default: "",
-    },
-    fileName: {
-      type: String,     
-      default: "",
-    },
-    fileSize: {
-      type: Number,     
-      default: 0,
-    },
+    fileUrl: { type: String, default: "" },
+    fileType: { type: String, default: "" },
+    fileName: { type: String, default: "" },
+    fileSize: { type: Number, default: 0 },
+
+    // Array of user IDs who have read this message
+    readBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );
