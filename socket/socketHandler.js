@@ -77,6 +77,29 @@ const socketHandler = (io) => {
       });
     });
 
+    // When a user opens a room, mark messages as read and notify others
+    socket.on("messages:read", async ({ roomId }) => {
+      try {
+        await Message.updateMany(
+          {
+            room: roomId,
+            sender: { $ne: socket.user._id },
+            readBy: { $ne: socket.user._id },
+          },
+          { $addToSet: { readBy: socket.user._id } }
+        );
+
+        // Tell everyone in the room that this user has read the messages
+        socket.to(roomId).emit("messages:read", {
+          roomId,
+          userId: socket.user._id,
+          username: socket.user.username,
+        });
+      } catch (err) {
+        console.error("Mark as read error:", err);
+      }
+    });
+
     // --- TYPING INDICATORS ---
     socket.on("typing:start", ({ roomId }) => {
       // Tell everyone ELSE in the room this user is typing
