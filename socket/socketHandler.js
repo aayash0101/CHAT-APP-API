@@ -21,6 +21,7 @@ const socketHandler = (io) => {
 
   io.on("connection", async (socket) => {
     console.log(`🔌 ${socket.user.username} connected`);
+    socket.join(socket.user._id.toString());
 
     // Mark user as online in DB
     await User.findByIdAndUpdate(socket.user._id, { isOnline: true });
@@ -116,6 +117,65 @@ const socketHandler = (io) => {
       });
     });
 
+    // ── CALL SIGNALING ──────────────────────────────────────
+
+    // User initiates a call
+    socket.on("call:initiate", ({ targetUserId, roomId, callerName, callerAvatar, isGroup }) => {
+      // For DMs — notify the specific user
+      // For rooms — notify everyone in the room except caller
+      if (isGroup) {
+        socket.to(roomId).emit("call:incoming", {
+          callerId: socket.user._id,
+          callerName: callerName || socket.user.username,
+          callerAvatar: callerAvatar || socket.user.avatar,
+          roomId,
+          isGroup: true,
+        });
+      } else {
+        // Find the target user's socket and notify them
+        io.to(targetUserId).emit("call:incoming", {
+          callerId: socket.user._id,
+          callerName: callerName || socket.user.username,
+          callerAvatar: callerAvatar || socket.user.avatar,
+          roomId,
+          isGroup: false,
+        });
+      }
+    });
+
+    // Callee accepts the call
+    socket.on("call:accepted", ({ callerId, roomId }) => {
+      io.to(callerId).emit("call:accepted", {
+        acceptedBy: socket.user._id,
+        roomId,
+      });
+    });
+
+    // Callee rejects the call
+    socket.on("call:rejected", ({ callerId }) => {
+      io.to(callerId).emit("call:rejected", {
+        rejectedBy: socket.user._id,
+        username: socket.user.username,
+      });
+    });
+
+    // Either party ends the call
+    socket.on("call:ended", ({ targetId, roomId }) => {
+      if (targetId) {
+        io.to(targetId).emit("call:ended");
+      } else if (roomId) {
+        socket.to(roomId).emit("call:ended");
+      }
+    });
+
+    // WebRTC signaling — forward signal data to the target peer
+    socket.on("call:signal", ({ targetId, signal }) => {
+      io.to(targetId).emit("call:signal-received", {
+        signal,
+        senderId: socket.user._id,
+      });
+    });
+
     // --- DISCONNECT ---
     socket.on("disconnect", async () => {
       console.log(`🔌 ${socket.user.username} disconnected`);
@@ -126,5 +186,7 @@ const socketHandler = (io) => {
     });
   });
 };
+
+
 
 export default socketHandler;
