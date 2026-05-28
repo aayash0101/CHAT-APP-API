@@ -168,7 +168,13 @@ const socketHandler = (io) => {
       }
     });
 
-
+    // WebRTC signaling — forward signal data to the target peer
+    socket.on("call:signal", ({ targetId, signal }) => {
+      io.to(targetId).emit("call:signal-received", {
+        signal,
+        senderId: socket.user._id,
+      });
+    });
 
     // --- DISCONNECT ---
     socket.on("disconnect", async () => {
