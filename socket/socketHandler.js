@@ -78,7 +78,7 @@ const socketHandler = (io) => {
       });
     });
 
-    // When a user opens a room, mark messages as read and notify others
+
     socket.on("messages:read", async ({ roomId }) => {
       try {
         await Message.updateMany(
@@ -90,7 +90,7 @@ const socketHandler = (io) => {
           { $addToSet: { readBy: socket.user._id } }
         );
 
-        // Tell everyone in the room that this user has read the messages
+
         socket.to(roomId).emit("messages:read", {
           roomId,
           userId: socket.user._id,
@@ -101,9 +101,8 @@ const socketHandler = (io) => {
       }
     });
 
-    // --- TYPING INDICATORS ---
     socket.on("typing:start", ({ roomId }) => {
-      // Tell everyone ELSE in the room this user is typing
+
       socket.to(roomId).emit("typing:update", {
         username: socket.user.username,
         isTyping: true,
@@ -117,12 +116,10 @@ const socketHandler = (io) => {
       });
     });
 
-    // ── CALL SIGNALING ──────────────────────────────────────
 
-    // User initiates a call
     socket.on("call:initiate", ({ targetUserId, roomId, callerName, callerAvatar, isGroup }) => {
-      // For DMs — notify the specific user
-      // For rooms — notify everyone in the room except caller
+      console.log("call:initiate received", { targetUserId, roomId, callerName, isGroup });
+      console.log("caller socket.user._id:", socket.user._id);
       if (isGroup) {
         socket.to(roomId).emit("call:incoming", {
           callerId: socket.user._id,
