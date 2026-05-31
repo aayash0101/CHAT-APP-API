@@ -119,21 +119,20 @@ const socketHandler = (io) => {
 
     socket.on("call:initiate", ({ targetUserId, roomId, callerName, callerAvatar, isGroup }) => {
       console.log("call:initiate received", { targetUserId, roomId, callerName, isGroup });
-      console.log("caller socket.user._id:", socket.user._id);
+
       if (isGroup) {
         socket.to(roomId).emit("call:incoming", {
-          callerId: socket.user._id,
+          callerId: socket.user._id.toString(), 
           callerName: callerName || socket.user.username,
-          callerAvatar: callerAvatar || socket.user.avatar,
+          callerAvatar: callerAvatar || socket.user.avatar || "",
           roomId,
           isGroup: true,
         });
       } else {
-        // Find the target user's socket and notify them
         io.to(targetUserId).emit("call:incoming", {
-          callerId: socket.user._id,
+          callerId: socket.user._id.toString(), 
           callerName: callerName || socket.user.username,
-          callerAvatar: callerAvatar || socket.user.avatar,
+          callerAvatar: callerAvatar || socket.user.avatar || "",
           roomId,
           isGroup: false,
         });
